@@ -1,0 +1,76 @@
+// Count Subarrays With Majority Element II
+
+import java.util.*;
+
+class Solution {
+    public long countMajoritySubarrays(int[] nums, int target) {
+        int n = nums.length;
+        int[] pref = new int[n + 1];
+
+        for (int i = 0; i < n; i++) {
+            pref[i + 1] = pref[i] + (nums[i] == target ? 1 : -1);
+        }
+
+        int[] sorted = pref.clone();
+        Arrays.sort(sorted);
+
+        int size = 0;
+        for (int x : sorted) {
+            if (size == 0 || sorted[size - 1] != x) {
+                sorted[size++] = x;
+            }
+        }
+
+        Fenwick bit = new Fenwick(size);
+        long ans = 0;
+
+        for (int x : pref) {
+            int idx = lowerBound(sorted, size, x) + 1;
+
+            ans += bit.query(idx - 1);
+
+            bit.add(idx, 1);
+        }
+
+        return ans;
+    }
+
+    private int lowerBound(int[] arr, int size, int target) {
+        int left = 0, right = size;
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (arr[mid] < target) left = mid + 1;
+            else right = mid;
+        }
+
+        return left;
+    }
+
+    class Fenwick {
+        int[] tree;
+
+        Fenwick(int n) {
+            tree = new int[n + 1];
+        }
+
+        void add(int index, int value) {
+            while (index < tree.length) {
+                tree[index] += value;
+                index += index & -index;
+            }
+        }
+
+        int query(int index) {
+            int sum = 0;
+
+            while (index > 0) {
+                sum += tree[index];
+                index -= index & -index;
+            }
+
+            return sum;
+        }
+    }
+}
