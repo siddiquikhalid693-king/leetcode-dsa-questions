@@ -1,0 +1,53 @@
+//  Find the Maximum Number of Elements in Subset
+
+import java.util.*;
+
+class Solution {
+    public int maximumLength(int[] nums) {
+        Map<Long, Integer> freq = new HashMap<>();
+
+        for (int num : nums) {
+            freq.put((long) num, freq.getOrDefault((long) num, 0) + 1);
+        }
+
+        int ans = 1;
+
+        // Special case for 1
+        int ones = freq.getOrDefault(1L, 0);
+        if (ones > 0) {
+            if (ones % 2 == 0) ones--;
+            ans = Math.max(ans, ones);
+        }
+
+        for (long x : freq.keySet()) {
+            if (x == 1) continue;
+
+            long cur = x;
+            int len = 0;
+
+            while (freq.containsKey(cur)) {
+                int count = freq.get(cur);
+
+                if (count >= 2) {
+                    len += 2;
+                } else {
+                    len += 1;
+                    break;
+                }
+
+                if (cur > 1_000_000_000L / cur) break;
+                cur = cur * cur;
+            }
+
+            // center element counted extra pair, so remove 1
+            if (len % 2 == 0) len--;
+
+            ans = Math.max(ans, len);
+        }
+
+        return ans;
+    }
+}
+
+
+----------------------------------------------------------------------------------------
