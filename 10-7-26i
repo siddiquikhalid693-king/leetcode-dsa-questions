@@ -1,0 +1,112 @@
+import java.util.*;
+
+class Solution {
+    public int[] pathExistenceQueries(
+            int n, int[] nums, int maxDiff, int[][] queries) {
+
+        Integer[] order = new Integer[n];
+
+        for (int i = 0; i < n; i++) {
+            order[i] = i;
+        }
+
+        Arrays.sort(order, (a, b) -> Integer.compare(nums[a], nums[b]));
+
+        long[] sorted = new long[n];
+        int[] position = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            sorted[i] = nums[order[i]];
+            position[order[i]] = i;
+        }
+
+        // Identify connected components.
+        int[] component = new int[n];
+
+        for (int i = 1; i < n; i++) {
+            component[i] = component[i - 1];
+
+            if (sorted[i] - sorted[i - 1] > maxDiff) {
+                component[i]++;
+            }
+        }
+
+        // farthest[i] = farthest sorted position reachable in one edge.
+        int[] farthest = new int[n];
+        int right = 0;
+
+        for (int left = 0; left < n; left++) {
+            if (right < left) {
+                right = left;
+            }
+
+            while (right + 1 < n &&
+                    sorted[right + 1] - sorted[left] <= maxDiff) {
+                right++;
+            }
+
+            farthest[left] = right;
+        }
+
+        int log = 1;
+
+        while ((1L << log) <= n) {
+            log++;
+        }
+
+        // jump[k][i] = farthest position reachable in 2^k edges.
+        int[][] jump = new int[log][n];
+
+        for (int i = 0; i < n; i++) {
+            jump[0][i] = farthest[i];
+        }
+
+        for (int k = 1; k < log; k++) {
+            for (int i = 0; i < n; i++) {
+                jump[k][i] = jump[k - 1][jump[k - 1][i]];
+            }
+        }
+
+        int[] answer = new int[queries.length];
+
+        for (int q = 0; q < queries.length; q++) {
+            int u = queries[q][0];
+            int v = queries[q][1];
+
+            if (u == v) {
+                answer[q] = 0;
+                continue;
+            }
+
+            int left = position[u];
+            int target = position[v];
+
+            if (left > target) {
+                int temp = left;
+                left = target;
+                target = temp;
+            }
+
+            if (component[left] != component[target]) {
+                answer[q] = -1;
+                continue;
+            }
+
+            int distance = 0;
+            int current = left;
+
+            for (int k = log - 1; k >= 0; k--) {
+                int next = jump[k][current];
+
+                if (next < target && next > current) {
+                    current = next;
+                    distance += 1 << k;
+                }
+            }
+
+            answer[q] = distance + 1;
+        }
+
+        return answer;
+    }
+}
