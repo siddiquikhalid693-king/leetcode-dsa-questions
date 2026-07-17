@@ -1,0 +1,77 @@
+//Sorted GCD Pair Queries
+
+
+
+
+
+import java.util.*;
+
+class Solution {
+    public int[] gcdValues(int[] nums, long[] queries) {
+        int max = 0;
+
+        for (int num : nums) {
+            max = Math.max(max, num);
+        }
+
+        long[] frequency = new long[max + 1];
+
+        for (int num : nums) {
+            frequency[num]++;
+        }
+
+        // gcdCount[g] = number of pairs having GCD exactly g
+        long[] gcdCount = new long[max + 1];
+
+        for (int g = max; g >= 1; g--) {
+            long divisibleCount = 0;
+
+            // Count numbers divisible by g
+            for (int multiple = g; multiple <= max; multiple += g) {
+                divisibleCount += frequency[multiple];
+            }
+
+            // Total pairs where both numbers are divisible by g
+            long pairs = divisibleCount * (divisibleCount - 1) / 2;
+
+            // Remove pairs whose GCD is a larger multiple of g
+            for (int multiple = 2 * g; multiple <= max; multiple += g) {
+                pairs -= gcdCount[multiple];
+            }
+
+            gcdCount[g] = pairs;
+        }
+
+        // prefix[g] = total number of pairs with GCD <= g
+        long[] prefix = new long[max + 1];
+
+        for (int g = 1; g <= max; g++) {
+            prefix[g] = prefix[g - 1] + gcdCount[g];
+        }
+
+        int[] answer = new int[queries.length];
+
+        for (int i = 0; i < queries.length; i++) {
+            long index = queries[i];
+
+            int left = 1;
+            int right = max;
+
+            // Find first GCD value whose cumulative pair count
+            // is greater than the zero-based query index.
+            while (left < right) {
+                int mid = left + (right - left) / 2;
+
+                if (prefix[mid] > index) {
+                    right = mid;
+                } else {
+                    left = mid + 1;
+                }
+            }
+
+            answer[i] = left;
+        }
+
+        return answer;
+    }
+}
