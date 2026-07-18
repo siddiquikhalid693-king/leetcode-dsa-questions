@@ -1,0 +1,44 @@
+//Valid Parentheses 
+
+
+import java.util.Stack;
+import java.util.HashMap;
+
+public class Solution {
+    public boolean isValid(String s) {
+        // Quick check: odd length strings can never be valid
+        if (s.length() % 2 != 0) {
+            return false;
+        }
+
+        Stack<Character> stack = new Stack<>();
+        HashMap<Character, Character> bracketMap = new HashMap<>();
+        
+        // Map closing brackets to their matching open brackets
+        bracketMap.put(')', '(');
+        bracketMap.put('}', '{');
+        bracketMap.put(']', '[');
+
+        for (int i = 0; i < s.length(); i++) {
+            char charAtIdx = s.charAt(i);
+
+            // If the character is a closing bracket
+            if (bracketMap.containsKey(charAtIdx)) {
+                // Pop from stack if not empty, otherwise use a placeholder
+                char topElement = stack.isEmpty() ? '#' : stack.pop();
+
+                // Check if it matches the correct opening bracket
+                if (topElement != bracketMap.get(charAtIdx)) {
+                    return false;
+                }
+            } else {
+                // If it is an opening bracket, push to stack
+                stack.push(charAtIdx);
+            }
+        }
+
+        // Returns true if all brackets were matched and popped
+        return stack.isEmpty();
+    }
+}
+
