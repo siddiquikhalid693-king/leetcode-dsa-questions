@@ -1,0 +1,42 @@
+//Smallest Subsequence of Distinct Characters
+
+import java.util.Stack;
+
+public class Solution {
+    public String smallestSubsequence(String s) {
+        // Count total occurrences of each character
+        int[] count = new int[26];
+        for (int i = 0; i < s.length(); i++) {
+            count[s.charAt(i) - 'a']++;
+        }
+        
+        // Track characters currently in the stack
+        boolean[] visited = new boolean[26];
+        StringBuilder stack = new StringBuilder();
+        
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            // Decrement the remaining count for the current character
+            count[c - 'a']--;
+            
+            // Skip if the character is already in our result
+            if (visited[c - 'a']) {
+                continue;
+            }
+            
+            // Pop larger characters if they appear again later
+            while (stack.length() > 0 && stack.charAt(stack.length() - 1) > c 
+                   && count[stack.charAt(stack.length() - 1) - 'a'] > 0) {
+                char popped = stack.charAt(stack.length() - 1);
+                stack.deleteCharAt(stack.length() - 1);
+                visited[popped - 'a'] = false;
+            }
+            
+            // Add the current character to the result
+            stack.append(c);
+            visited[c - 'a'] = true;
+        }
+        
+        return stack.toString();
+    }
+}
