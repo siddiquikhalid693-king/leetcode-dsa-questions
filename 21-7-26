@@ -1,1 +1,41 @@
-//
+//Maximize Active Section with Trade I
+
+
+public class Solution {
+    public int maxActiveSectionsAfterTrade(String s) {
+        // 1. Count original active sections
+        int originalOnes = 0;
+        for (char c : s.toCharArray()) {
+            if (c == '1') originalOnes++;
+        }
+        
+        // 2. Augment the string virtually
+        String t = "1" + s + "1";
+        
+        // 3. Track zero block lengths on the fly
+        int maxGain = 0;
+        int prevZeroLen = 0;
+        int currentZeroLen = 0;
+        boolean hasTwoBlocks = false;
+        
+        for (int i = 0; i < t.length(); i++) {
+            if (t.charAt(i) == '0') {
+                currentZeroLen++;
+            } else {
+                if (currentZeroLen > 0) {
+                    if (prevZeroLen > 0) {
+                        maxGain = Math.max(maxGain, prevZeroLen + currentZeroLen);
+                        hasTwoBlocks = true;
+                    } else {
+                        maxGain = Math.max(maxGain, currentZeroLen);
+                    }
+                    prevZeroLen = currentZeroLen;
+                    currentZeroLen = 0;
+                }
+            }
+        }
+        
+        return hasTwoBlocks ? (originalOnes + maxGain) : originalOnes;
+    }
+}
+
