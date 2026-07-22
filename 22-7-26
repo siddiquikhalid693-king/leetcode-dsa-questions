@@ -92,3 +92,285 @@ public class Solution {
         return result;
     }
 }
+
+
+
+------------------------------------------------------------------------------------------
+
+import java.util.*;
+
+class Solution {
+
+    private int[] segmentTree;
+    private int treeSize;
+
+    public List<Integer> maxActiveSectionsAfterTrade(
+            String s, int[][] queries) {
+
+        int n = s.length();
+        int totalOnes = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (s.charAt(i) == '1') {
+                totalOnes++;
+            }
+        }
+
+        List<Integer> oneStartList = new ArrayList<>();
+        List<Integer> oneEndList = new ArrayList<>();
+        List<Integer> zeroLeftList = new ArrayList<>();
+        List<Integer> zeroRightList = new ArrayList<>();
+        List<Integer> gainList = new ArrayList<>();
+
+        int i = 0;
+
+        while (i < n) {
+
+            if (s.charAt(i) == '0') {
+                i++;
+                continue;
+            }
+
+            int oneStart = i;
+
+            while (i < n && s.charAt(i) == '1') {
+                i++;
+            }
+
+            int oneEnd = i - 1;
+
+            // The 1-block must have zero blocks on both sides.
+            if (oneStart > 0
+                    && oneEnd < n - 1
+                    && s.charAt(oneStart - 1) == '0'
+                    && s.charAt(oneEnd + 1) == '0') {
+
+                int zeroLeft = oneStart - 1;
+
+                while (zeroLeft > 0
+                        && s.charAt(zeroLeft - 1) == '0') {
+                    zeroLeft--;
+                }
+
+                int zeroRight = oneEnd + 1;
+
+                while (zeroRight < n - 1
+                        && s.charAt(zeroRight + 1) == '0') {
+                    zeroRight++;
+                }
+
+                oneStartList.add(oneStart);
+                oneEndList.add(oneEnd);
+                zeroLeftList.add(zeroLeft);
+                zeroRightList.add(zeroRight);
+
+                int leftZeroLength = oneStart - zeroLeft;
+                int rightZeroLength = zeroRight - oneEnd;
+
+                gainList.add(leftZeroLength + rightZeroLength);
+            }
+        }
+
+        int[] oneStart = convert(oneStartList);
+        int[] oneEnd = convert(oneEndList);
+        int[] zeroLeft = convert(zeroLeftList);
+        int[] zeroRight = convert(zeroRightList);
+        int[] gain = convert(gainList);
+
+        buildSegmentTree(gain);
+
+        List<Integer> answer = new ArrayList<>();
+
+        for (int[] query : queries) {
+
+            int left = query[0];
+            int right = query[1];
+
+            /*
+             * The chosen 1-block must have at least one zero
+             * before and after it inside the query.
+             */
+            int first = lowerBound(oneStart, left + 1);
+            int last = upperBound(oneEnd, right - 1) - 1;
+
+            if (first >= oneStart.length || first > last) {
+                answer.add(totalOnes);
+                continue;
+            }
+
+            int bestGain = 0;
+
+            // First candidate may have a clipped left zero block.
+            bestGain = Math.max(
+                    bestGain,
+                    getClippedGain(
+                            first,
+                            left,
+                            right,
+                            oneStart,
+                            oneEnd,
+                            zeroLeft,
+                            zeroRight
+                    )
+            );
+
+            // Last candidate may have a clipped right zero block.
+            if (last != first) {
+                bestGain = Math.max(
+                        bestGain,
+                        getClippedGain(
+                                last,
+                                left,
+                                right,
+                                oneStart,
+                                oneEnd,
+                                zeroLeft,
+                                zeroRight
+                        )
+                );
+            }
+
+            /*
+             * Candidates between first and last have complete
+             * zero blocks on both sides.
+             */
+            if (first + 1 <= last - 1) {
+                bestGain = Math.max(
+                        bestGain,
+                        rangeMaximum(first + 1, last - 1)
+                );
+            }
+
+            answer.add(totalOnes + bestGain);
+        }
+
+        return answer;
+    }
+
+    private int getClippedGain(
+            int index,
+            int queryLeft,
+            int queryRight,
+            int[] oneStart,
+            int[] oneEnd,
+            int[] zeroLeft,
+            int[] zeroRight) {
+
+        int leftZeroLength =
+                oneStart[index]
+                        - Math.max(queryLeft, zeroLeft[index]);
+
+        int rightZeroLength =
+                Math.min(queryRight, zeroRight[index])
+                        - oneEnd[index];
+
+        return leftZeroLength + rightZeroLength;
+    }
+
+    private int[] convert(List<Integer> list) {
+
+        int[] array = new int[list.size()];
+
+        for (int i = 0; i < list.size(); i++) {
+            array[i] = list.get(i);
+        }
+
+        return array;
+    }
+
+    private int lowerBound(int[] array, int target) {
+
+        int left = 0;
+        int right = array.length;
+
+        while (left < right) {
+
+            int middle = left + (right - left) / 2;
+
+            if (array[middle] >= target) {
+                right = middle;
+            } else {
+                left = middle + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private int upperBound(int[] array, int target) {
+
+        int left = 0;
+        int right = array.length;
+
+        while (left < right) {
+
+            int middle = left + (right - left) / 2;
+
+            if (array[middle] <= target) {
+                left = middle + 1;
+            } else {
+                right = middle;
+            }
+        }
+
+        return left;
+    }
+
+    private void buildSegmentTree(int[] values) {
+
+        treeSize = 1;
+
+        while (treeSize < values.length) {
+            treeSize *= 2;
+        }
+
+        segmentTree = new int[treeSize * 2];
+
+        for (int i = 0; i < values.length; i++) {
+            segmentTree[treeSize + i] = values[i];
+        }
+
+        for (int i = treeSize - 1; i > 0; i--) {
+            segmentTree[i] = Math.max(
+                    segmentTree[i * 2],
+                    segmentTree[i * 2 + 1]
+            );
+        }
+    }
+
+    private int rangeMaximum(int left, int right) {
+
+        if (left > right) {
+            return 0;
+        }
+
+        left += treeSize;
+        right += treeSize;
+
+        int maximum = 0;
+
+        while (left <= right) {
+
+            if ((left & 1) == 1) {
+                maximum = Math.max(
+                        maximum,
+                        segmentTree[left]
+                );
+                left++;
+            }
+
+            if ((right & 1) == 0) {
+                maximum = Math.max(
+                        maximum,
+                        segmentTree[right]
+                );
+                right--;
+            }
+
+            left /= 2;
+            right /= 2;
+        }
+
+        return maximum;
+    }
+}
