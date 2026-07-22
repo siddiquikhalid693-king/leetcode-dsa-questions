@@ -1,1 +1,94 @@
 //
+import java.util.*;
+
+public class Solution {
+    public List<Integer> maxActiveSectionsAfterTrade(String s, int[][] queries) {
+        List<Integer> result = new ArrayList<>();
+        int totalOnesGlobal = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '1') totalOnesGlobal++;
+        }
+
+        for (int[] query : queries) {
+            int ql = query[0];
+            int qr = query[1];
+            
+            // Substring properties
+            int subLen = qr - ql + 1;
+            int onesInSub = 0;
+            for (int i = ql; i <= qr; i++) {
+                if (s.charAt(i) == '1') onesInSub++;
+            }
+            
+            // Construct augmented local array representation:
+            // index 0 -> Virtual '1'
+            // index 1 to subLen -> substring s[ql...qr]
+            // index subLen + 1 -> Virtual '1'
+            char[] t = new char[subLen + 2];
+            t[0] = '1';
+            t[subLen + 1] = '1';
+            for (int i = 0; i < subLen; i++) {
+                t[i + 1] = s.charAt(ql + i);
+            }
+            
+            int bestSubOnes = onesInSub;
+            int n_t = t.length;
+            
+            // Identify all candidate '1' blocks enclosed by '0' inside the local window
+            List<int[]> blocksOfOne = new ArrayList<>();
+            int i = 1;
+            while (i < n_t - 1) {
+                if (t[i] == '1') {
+                    int start = i;
+                    while (i < n_t - 1 && t[i] == '1') {
+                        i++;
+                    }
+                    int end = i - 1;
+                    // Strict surrounding condition: check if left and right neighbors are '0'
+                    if (t[start - 1] == '0' && t[end + 1] == '0') {
+                        blocksOfOne.add(new int[]{start, end});
+                    }
+                } else {
+                    i++;
+                }
+            }
+            
+            // Evaluate the gain for each candidate '1' block
+            for (int[] block : blocksOfOne) {
+                int start = block[0];
+                int end = block[1];
+                
+                // Track total '1's remaining in the local window after turning this block to '0's
+                int currentLocalOnes = onesInSub - (end - start + 1);
+                
+                // Find lengths of the adjacent '0' blocks to its immediate left and right
+                int leftZeroLen = 0;
+                int idx = start - 1;
+                while (idx >= 1 && t[idx] == '0') {
+                    leftZeroLen++;
+                    idx--;
+                }
+                
+                int rightZeroLen = 0;
+                idx = end + 1;
+                while (idx < n_t - 1 && t[idx] == '0') {
+                    rightZeroLen++;
+                    idx++;
+                }
+                
+                // Flipping the '1' block merges the left and right zero blocks into a massive '1' block.
+                // The net gain is adding the total sizes of both '0' blocks back as active sections.
+                int structuralCandidateOnes = currentLocalOnes + leftZeroLen + rightZeroLen + (end - start + 1);
+                if (structuralCandidateOnes > bestSubOnes) {
+                    bestSubOnes = structuralCandidateOnes;
+                }
+            }
+            
+            // Total global active sections = (original global 1s) - (original sub 1s) + (max optimized sub 1s)
+            int globalOnesOutside = totalOnesGlobal - onesInSub;
+            result.add(globalOnesOutside + bestSubOnes);
+        }
+        
+        return result;
+    }
+}
