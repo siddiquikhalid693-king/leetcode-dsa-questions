@@ -17,3 +17,49 @@ class Solution {
         return power;
     }
 }
+
+
+-----------------------------
+
+
+//Number of Unique XOR Triplets II
+
+
+import java.util.BitSet;
+
+public class Solution {
+    public int uniqueXorTriplets(int[] nums) {
+        int n = nums.length;
+        
+        // Find the maximum possible value to size the BitSets dynamically
+        int maxVal = 0;
+        for (int num : nums) {
+            maxVal = Math.max(maxVal, num);
+        }
+        
+        // Calculate a safe size limit for the bitsets
+        int bitSetSize = Integer.highestOneBit(maxVal) << 1;
+        if (bitSetSize == 0) bitSetSize = 1;
+
+        BitSet pairsXor = new BitSet(bitSetSize);
+        BitSet tripletsXor = new BitSet(bitSetSize);
+
+        // Track all unique pairwise XOR results (i <= j)
+        for (int i = 0; i < n; i++) {
+            for (int j = i; j < n; j++) {
+                pairsXor.set(nums[i] ^ nums[j]);
+            }
+        }
+
+        // Combine pairs with the third element to get unique triplet XORs
+        for (int k = 0; k < n; k++) {
+            int numK = nums[k];
+            for (int pXor = pairsXor.nextSetBit(0); pXor >= 0; pXor = pairsXor.nextSetBit(pXor + 1)) {
+                tripletsXor.set(pXor ^ numK);
+            }
+        }
+
+        return tripletsXor.cardinality();
+    }
+}
+
