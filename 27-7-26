@@ -1,1 +1,25 @@
-//
+//Maximum Product of Two Elements in an Array
+
+class Solution {
+    public int maxProduct(int[] nums) {
+        // Initialize the two largest tracking variables
+        int max1 = 0;
+        int max2 = 0;
+        
+        for (int num : nums) {
+            // Current number is greater than the largest found so far
+            if (num > max1) {
+                max2 = max1; // Current largest becomes second largest
+                max1 = num;  // Update largest
+            } 
+            // Current number is between max1 and max2
+            else if (num > max2) {
+                max2 = num;  // Update second largest
+            }
+        }
+        
+        // Return the final maximized product calculation
+        return (max1 - 1) * (max2 - 1);
+    }
+}
+
