@@ -1,0 +1,39 @@
+//Smallest Palindromic Rearrangement I
+
+public class Solution {
+    public String smallestPalindrome(String s) {
+        int[] counts = new int[26];
+        for (char c : s.toCharArray()) {
+            counts[c - 'a']++;
+        }
+
+        int oddCount = 0;
+        char middleChar = 0;
+        for (int i = 0; i < 26; i++) {
+            if (counts[i] % 2 != 0) {
+                oddCount++;
+                middleChar = (char) (i + 'a');
+            }
+        }
+
+        if (oddCount > 1) {
+            return ""; 
+        }
+
+        StringBuilder leftHalf = new StringBuilder();
+        for (int i = 0; i < 26; i++) {
+            int half = counts[i] / 2;
+            for (int j = 0; j < half; j++) {
+                leftHalf.append((char) (i + 'a'));
+            }
+        }
+
+        StringBuilder rightHalf = new StringBuilder(leftHalf).reverse();
+
+        if (oddCount == 1) {
+            return leftHalf.toString() + middleChar + rightHalf.toString();
+        }
+
+        return leftHalf.toString() + rightHalf.toString();
+    }
+}
