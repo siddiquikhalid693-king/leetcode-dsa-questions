@@ -1,0 +1,61 @@
+//Smallest Palindromic Rearrangement II 
+
+from collections import Counter
+
+class Solution(object):
+    def smallestPalindrome(self, s, k):
+        freq = Counter(s)
+
+        mid = ""
+        half_counts = {}
+
+        for ch in freq:
+            if freq[ch] % 2:
+                mid = ch
+            half_counts[ch] = freq[ch] // 2
+
+        chars = sorted(half_counts.keys())
+        half_len = sum(half_counts.values())
+
+        def count_perms_limited(counts, limit):
+            total = sum(counts.values())
+            ans = 1
+
+            used = 0
+            for ch in chars:
+                c = counts[ch]
+                if c == 0:
+                    continue
+
+                # multiply by C(used + c, c)
+                for i in range(1, c + 1):
+                    ans = ans * (used + i) // i
+                    if ans >= limit:
+                        return limit
+
+                used += c
+
+            return ans
+
+        if count_perms_limited(half_counts, k) < k:
+            return ""
+
+        left = []
+
+        for _ in range(half_len):
+            for ch in chars:
+                if half_counts[ch] == 0:
+                    continue
+
+                half_counts[ch] -= 1
+                cnt = count_perms_limited(half_counts, k)
+
+                if cnt >= k:
+                    left.append(ch)
+                    break
+
+                k -= cnt
+                half_counts[ch] += 1
+
+        left = "".join(left)
+        return left + mid + left[::-1]
