@@ -1,0 +1,30 @@
+//Stone Game III (python code)
+
+class Solution:
+    def stoneGameIII(self, stoneValue):
+        n = len(stoneValue)
+        # dp[i] stores the max relative score advantage from index i
+        dp = [0] * (n + 1)
+        
+        # Build the table from right to left
+        for i in range(n - 1, -1, -1):
+            take = 0
+            max_advantage = float('-inf')
+            
+            # A player can take 1, 2, or 3 stones
+            for k in range(3):
+                if i + k < n:
+                    take += stoneValue[i + k]
+                    max_advantage = max(max_advantage, take - dp[i + k + 1])
+            
+            dp[i] = max_advantage
+            
+        # Determine outcome based on Alice's initial advantage at index 0
+        if dp[0] > 0:
+            return "Alice"
+        elif dp[0] < 0:
+            return "Bob"
+        else:
+            return "Tie"
+
+
