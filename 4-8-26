@@ -1,1 +1,18 @@
-//
+//Find Missing Elements
+
+class Solution(object):
+    def findMissingElements(self, nums):
+        if not nums:
+            return []
+            
+        min_val = min(nums)
+        max_val = max(nums)
+        num_set = set(nums)
+        
+        missing = []
+        for x in range(min_val, max_val + 1):
+            if x not in num_set:
+                missing.append(x)
+                
+        return missing
+
