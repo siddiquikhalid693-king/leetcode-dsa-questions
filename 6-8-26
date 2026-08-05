@@ -1,0 +1,35 @@
+//Remove Methods From Project 
+
+from collections import deque, defaultdict
+
+class Solution:
+    def remainingMethods(self, n, k, invocations):
+        # Build graph
+        graph = defaultdict(list)
+        for a, b in invocations:
+            graph[a].append(b)
+        
+        # Find suspicious methods (reachable from k)
+        suspicious = [False] * n
+        queue = deque([k])
+        suspicious[k] = True
+        
+        while queue:
+            node = queue.popleft()
+            for neighbor in graph[node]:
+                if not suspicious[neighbor]:
+                    suspicious[neighbor] = True
+                    queue.append(neighbor)
+        
+        # Check if any edge goes from non-suspicious to suspicious
+        can_remove = True
+        for a, b in invocations:
+            if not suspicious[a] and suspicious[b]:
+                can_remove = False
+                break
+        
+        # Return result
+        if can_remove:
+            return [i for i in range(n) if not suspicious[i]]
+        else:
+            return list(range(n))
