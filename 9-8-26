@@ -1,2 +1,41 @@
 //Stone Game II
 
+class Solution:
+    def stoneGameII(self, piles):
+        n = len(piles)
+        # suffix sums: suffix[i] = sum of piles[i:]
+        suffix = [0] * (n + 1)
+        for i in range(n - 1, -1, -1):
+            suffix[i] = suffix[i + 1] + piles[i]
+        
+        # Use dictionary for memoization instead of lru_cache
+        memo = {}
+        
+        def dp(i, m):
+            # If no piles left
+            if i >= n:
+                return 0
+            # If we can take all remaining piles
+            if i + 2 * m >= n:
+                return suffix[i]
+            
+            # Check if already computed
+            if (i, m) in memo:
+                return memo[(i, m)]
+            
+            best = 0
+            for x in range(1, 2 * m + 1):
+                # take x piles, then opponent plays from i+x with max(m, x)
+                next_m = max(m, x)
+                # stones current player gets = stones taken + (remaining stones - opponent's optimal)
+                stones_taken = suffix[i] - suffix[i + x]
+                remaining = suffix[i + x]
+                opponent_best = dp(i + x, next_m)
+                best = max(best, stones_taken + (remaining - opponent_best))
+            
+            # Store in memo
+            memo[(i, m)] = best
+            return best
+        
+        return dp(0, 1)
+
