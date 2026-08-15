@@ -1,0 +1,24 @@
+//Longest Subsequence With Non-Zero Bitwise XOR
+
+class Solution(object):
+    def longestSubsequence(self, nums):
+        # Check if all elements are zero
+        all_zeros = True
+        for x in nums:
+            if x != 0:
+                all_zeros = False
+                break
+        
+        if all_zeros:
+            return 0
+        
+        # Calculate total XOR sum
+        total_xor = 0
+        for num in nums:
+            total_xor ^= num
+            
+        # Determine the length
+        if total_xor != 0:
+            return len(nums)
+        else:
+            return len(nums) - 1
