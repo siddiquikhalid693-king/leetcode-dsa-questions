@@ -1,0 +1,27 @@
+// Find the Largest Almost Missing Integer
+
+
+from collections import defaultdict
+
+class Solution(object):
+    def largestInteger(self, nums, k):
+        n = len(nums)
+        subarray_counts = defaultdict(int)
+        
+        # Iterate through all possible subarrays of size k
+        for i in range(n - k + 1):
+            subarray = nums[i : i + k]
+            # Use a set to avoid counting duplicate elements within the same subarray
+            unique_elements = set(subarray)
+            
+            for num in unique_elements:
+                subarray_counts[num] += 1
+                
+        # Filter numbers that appeared in exactly 1 subarray
+        valid_elements = [num for num, count in subarray_counts.items() if count == 1]
+        
+        # Return the largest valid number, or -1 if none exist
+        if valid_elements:
+            return max(valid_elements)
+        else:
+            return -1
