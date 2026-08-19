@@ -1,0 +1,33 @@
+//Cinema Seat Allocation
+
+from collections import defaultdict
+
+class Solution(object):
+    def maxNumberOfFamilies(self, n, reservedSeats):
+        # Group reserved seats by their row
+        occupied = defaultdict(int)
+        for row, seat in reservedSeats:
+            if 2 <= seat <= 9:
+                occupied[row] |= (1 << (seat - 2))
+        
+        # Bitmasks for required free seats
+        left_mask = 15      # bits 0,1,2,3 (seats 2,3,4,5)
+        right_mask = 240    # bits 4,5,6,7 (seats 6,7,8,9)
+        middle_mask = 60    # bits 2,3,4,5 (seats 4,5,6,7)
+        
+        max_groups = 0
+        
+        for mask in occupied.values():
+            left_free = (mask & left_mask) == 0
+            right_free = (mask & right_mask) == 0
+            
+            if left_free and right_free:
+                max_groups += 2
+            elif left_free or right_free or (mask & middle_mask) == 0:
+                max_groups += 1
+                
+        # Add 2 families for every completely empty row
+        empty_rows = n - len(occupied)
+        max_groups += empty_rows * 2
+        
+        return max_groups
