@@ -1,0 +1,16 @@
+//Sum Game
+
+class Solution(object):
+    def sumGame(self, num):
+        n = len(num)
+        mid = n / 2  # Standard integer division in Python 2
+        
+        # Calculate sums and '?' counts for both halves
+        s1 = sum(int(c) for c in num[:mid] if c != '?')
+        s2 = sum(int(c) for c in num[mid:] if c != '?')
+        
+        q1 = num[:mid].count('?')
+        q2 = num[mid:].count('?')
+        
+        # Bob wins if he can balance the sums perfectly
+        return 2 * (s1 - s2) != 9 * (q2 - q1)
