@@ -1,0 +1,52 @@
+//Lexicographically Smallest Permutation Greater Than Target
+
+from collections import Counter
+
+class Solution:
+    def lexGreaterPermutation(self, s, target):
+        n = len(s)
+        count = Counter(s)
+        
+        # Track the character frequencies matching the target prefix
+        curr_count = count.copy()
+        best_prefix_len = -1
+        best_char = None
+        
+        # Step 1: Find the longest prefix match possible
+        for i in range(n):
+            # Check for the SMALLEST character strictly larger than target[i]
+            for c_code in range(ord(target[i]) + 1, ord('z') + 1):
+                c = chr(c_code)
+                if curr_count[c] > 0:
+                    best_prefix_len = i
+                    best_char = c
+                    break  # Found the smallest valid choice for index i
+            
+            # Move deeper by matching the target character
+            if curr_count[target[i]] > 0:
+                curr_count[target[i]] -= 1
+            else:
+                break
+        
+        # If no position can support a strictly larger character, it's impossible
+        if best_prefix_len == -1:
+            return ""
+            
+        # Step 2: Reconstruct the optimal string
+        # Re-tally remaining characters up to the best diverging index
+        rem_count = count.copy()
+        for i in range(best_prefix_len):
+            rem_count[target[i]] -= 1
+            
+        # Place the strictly larger character
+        rem_count[best_char] -= 1
+        
+        # Gather the remaining unused characters and sort them smallest to largest
+        remaining_chars = []
+        for c_code in range(ord('a'), ord('z') + 1):
+            c = chr(c_code)
+            if rem_count[c] > 0:
+                remaining_chars.append(c * rem_count[c])
+                
+        # Combine the common prefix + the larger character + sorted remaining pieces
+        return target[:best_prefix_len] + best_char + "".join(remaining_chars)
