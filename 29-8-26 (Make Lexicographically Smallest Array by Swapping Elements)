@@ -1,0 +1,31 @@
+//Make Lexicographically Smallest Array by Swapping Elements
+
+class Solution(object):
+    def lexicographicallySmallestArray(self, nums, limit):
+        n = len(nums)
+        # Pair numbers with their original indices and sort by value
+        sorted_pairs = sorted([(nums[i], i) for i in range(n)])
+        
+        result = [0] * n
+        i = 0
+        
+        # Group elements based on the limit condition
+        while i < n:
+            j = i + 1
+            # Find the boundary of the current group
+            while j < n and sorted_pairs[j][0] - sorted_pairs[j-1][0] <= limit:
+                j += 1
+                
+            # Extract and sort the original indices for this group
+            original_indices = sorted([sorted_pairs[k][1] for k in range(i, j)])
+            
+            # Assign sorted values to the sorted original indices
+            for k in range(i, j):
+                val = sorted_pairs[k][0]
+                target_idx = original_indices[k - i]
+                result[target_idx] = val
+                
+            # Move to the next group
+            i = j
+            
+        return result
