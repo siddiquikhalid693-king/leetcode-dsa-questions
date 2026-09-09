@@ -1,0 +1,14 @@
+//Count Commas in Range II
+
+class Solution:
+    def countCommas(self, n):
+        total = 0
+        k = 1
+        while True:
+            start = 10 ** (3 * k)
+            if start > n:
+                break
+            end = min(n, 10 ** (3 * (k + 1)) - 1)
+            total += (end - start + 1) * k
+            k += 1
+        return total
