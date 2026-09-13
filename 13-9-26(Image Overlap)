@@ -1,0 +1,15 @@
+//Image Overlap
+
+from collections import Counter
+
+class Solution:
+    def largestOverlap(self, img1, img2):  # Removed type hints, added self
+        b1 = [(r, c) for r, row in enumerate(img1) for c, val in enumerate(row) if val]
+        b2 = [(r, c) for r, row in enumerate(img2) for c, val in enumerate(row) if val]
+        
+        vector_counts = Counter()
+        for r1, c1 in b1:
+            for r2, c2 in b2:
+                vector_counts[(r2 - r1, c2 - c1)] += 1
+                
+        return max(vector_counts.values()) if vector_counts else 0
