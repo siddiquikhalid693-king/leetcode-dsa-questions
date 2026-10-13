@@ -1,0 +1,12 @@
+// Maximum Alternating Sum of Squares
+
+class Solution(object):
+    def maxAlternatingSum(self, nums):
+        # Calculate squares and sort them in ascending order
+        squares = sorted(x * x for x in nums)
+        
+        mid = len(nums) // 2
+        
+        # Sum of the larger half minus the sum of the smaller half
+        return sum(squares[mid:]) - sum(squares[:mid])
+
