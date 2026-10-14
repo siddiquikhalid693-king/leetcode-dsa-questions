@@ -1,0 +1,20 @@
+//Maximize Sum of Squares of Digits
+
+
+class Solution(object):
+    def maxSumOfSquares(self, num, sum):
+        # Return empty if required sum is impossible to achieve
+        if sum > 9 * num:
+            return ""
+        
+        # Calculate maximum number of 9s and the single remainder digit
+        count_9 = sum // 9
+        remainder = sum % 9
+        
+        # Form the string greedily
+        res = "9" * count_9
+        if remainder > 0:
+            res += str(remainder)
+            
+        # Pad with zeros to fulfill the required length
+        return res.ljust(num, "0")
