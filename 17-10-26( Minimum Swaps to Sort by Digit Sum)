@@ -1,0 +1,44 @@
+// Minimum Swaps to Sort by Digit Sum
+
+class Solution(object):
+    def minSwaps(self, nums):
+        def digit_sum(n):
+            return sum(int(d) for d in str(n))
+
+        n = len(nums)
+        
+        # 1. Store elements alongside their original indices
+        # items[i] = (digit_sum, value, original_index)
+        items = [(digit_sum(nums[i]), nums[i], i) for i in range(n)]
+        
+        # 2. Sort according to the problem constraints
+        items.sort()
+        
+        # 3. Create a map of where each original index needs to go
+        # target_pos[original_index] = sorted_index
+        target_pos = [0] * n
+        for sorted_idx in range(n):
+            original_idx = items[sorted_idx][2]
+            target_pos[original_idx] = sorted_idx
+
+        visited = [False] * n
+        swaps = 0
+
+        # 4. Find permutation cycles
+        for i in range(n):
+            # If already visited or already in the correct position
+            if visited[i] or target_pos[i] == i:
+                continue
+
+            # Traverse the cycle
+            cycle_size = 0
+            j = i
+            while not visited[j]:
+                visited[j] = True
+                j = target_pos[j]
+                cycle_size += 1
+
+            if cycle_size > 1:
+                swaps += (cycle_size - 1)
+
+        return swaps
