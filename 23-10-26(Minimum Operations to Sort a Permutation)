@@ -1,0 +1,20 @@
+//Minimum Operations to Sort a Permutation
+
+class Solution(object):
+    def minOperations(self, nums):
+        n = len(nums)
+        best = -1
+
+        # ascending rotation
+        k = nums[0]
+        if all(nums[i] == (k + i) % n for i in range(n)):
+            cost = 0 if k == 0 else min(n - k, k + 2)
+            best = cost if best == -1 else min(best, cost)
+
+        # descending rotation
+        j = nums[0]
+        if all(nums[i] == (j - i) % n for i in range(n)):
+            cost = min(1 + (n - j - 1) % n, 1 + (j + 1) % n)
+            best = cost if best == -1 else min(best, cost)
+
+        return best
