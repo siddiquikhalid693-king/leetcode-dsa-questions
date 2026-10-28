@@ -1,0 +1,44 @@
+//Minimum XOR Path in a Grid
+
+class Solution(object):
+    def minCost(self, grid):
+        m, n = len(grid), len(grid[0])
+        
+        # dp[c] holds a set of all reachable XOR values for column c in the current row
+        dp = [set() for _ in range(n)]
+        
+        # Initialize the starting cell (0, 0)
+        dp[0].add(grid[0][0])
+        
+        # Initialize the rest of the first row (can only come from the left)
+        for c in range(1, n):
+            val = grid[0][c]
+            for prev_xor in dp[c - 1]:
+                dp[c].add(prev_xor ^ val)
+                
+        # Process the remaining rows
+        for r in range(1, m):
+            # Update column 0 for the new row (can only come from the top)
+            next_col0 = set()
+            val0 = grid[r][0]
+            for prev_xor in dp[0]:
+                next_col0.add(prev_xor ^ val0)
+            dp[0] = next_col0
+            
+            # Update columns 1 to n-1 (can come from top OR left)
+            for c in range(1, n):
+                val = grid[r][c]
+                current_cell_xors = set()
+                
+                # From top neighbor (old dp[c])
+                for top_xor in dp[c]:
+                    current_cell_xors.add(top_xor ^ val)
+                    
+                # From left neighbor (newly computed dp[c-1])
+                for left_xor in dp[c - 1]:
+                    current_cell_xors.add(left_xor ^ val)
+                    
+                dp[c] = current_cell_xors
+                
+        # Return the minimum XOR value found at the bottom-right cell
+        return min(dp[n - 1])
