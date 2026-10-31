@@ -1,0 +1,26 @@
+//Twisted Mirror Path Count
+
+class Solution(object):
+    def uniquePaths(self, grid):
+        MOD = 10**9 + 7
+        m, n = len(grid), len(grid[0])
+        R = [[0] * (n + 1) for _ in range(m + 1)]
+        D = [[0] * (n + 1) for _ in range(m + 1)]
+
+        for i in range(m):
+            for j in range(n):
+                if i == 0 and j == 0:
+                    f = 1
+                elif grid[i][j] == 0:
+                    f = (R[i][j] + D[i][j]) % MOD
+                else:
+                    # mirror: entered right -> go down; entered down -> go right
+                    D[i + 1][j] = (D[i + 1][j] + R[i][j]) % MOD
+                    R[i][j + 1] = (R[i][j + 1] + D[i][j]) % MOD
+                    continue
+
+                if i == m - 1 and j == n - 1:
+                    return f % MOD
+                R[i][j + 1] = (R[i][j + 1] + f) % MOD
+                D[i + 1][j] = (D[i + 1][j] + f) % MOD
+        return 0
