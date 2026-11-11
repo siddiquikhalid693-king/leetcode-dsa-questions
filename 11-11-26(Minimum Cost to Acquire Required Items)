@@ -1,0 +1,18 @@
+//Minimum Cost to Acquire Required Items
+
+class Solution(object):
+    def minimumCost(self, cost1, cost2, costBoth, need1, need2):
+        m = min(need1, need2)
+
+        # Case 1: no type 3 items
+        a = need1 * cost1 + need2 * cost2
+
+        # Case 2: type 3 for the overlap, cheapest option for the remainder
+        b = (m * costBoth
+             + (need1 - m) * min(cost1, costBoth)
+             + (need2 - m) * min(cost2, costBoth))
+
+        # Case 3: only type 3 items
+        c = max(need1, need2) * costBoth
+
+        return min(a, b, c)
