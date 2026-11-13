@@ -1,0 +1,32 @@
+//Count Non-Decreasing Subarrays After K Operations
+
+
+from collections import deque
+
+class Solution(object):
+    def countNonDecreasingSubarrays(self, nums, k):
+        a = nums[::-1]
+        n = len(a)
+        dq = deque()          # indices, values strictly decreasing
+        cost = 0
+        l = 0
+        ans = 0
+
+        for r in range(n):
+            # add a[r]
+            while dq and a[dq[-1]] <= a[r]:
+                back = dq.pop()
+                prev = dq[-1] if dq else l - 1
+                cost += (a[r] - a[back]) * (back - prev)
+            dq.append(r)
+
+            # shrink until feasible
+            while cost > k:
+                cost -= a[dq[0]] - a[l]
+                if dq[0] == l:
+                    dq.popleft()
+                l += 1
+
+            ans += r - l + 1
+
+        return ans
