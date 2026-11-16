@@ -1,0 +1,15 @@
+// Calculate Digit Sum of a String
+
+class Solution(object):
+    def digitSum(self, s, k):
+        while len(s) > k:
+            new_groups = []
+            
+            for i in range(0, len(s), k):
+                group = s[i : i + k]
+                group_sum = sum(int(char) for char in group)
+                new_groups.append(str(group_sum))
+                
+            s = "".join(new_groups)
+            
+        return s
