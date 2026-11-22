@@ -1,0 +1,5 @@
+// Check if All A's Appears Before All B's
+
+class Solution(object):
+    def checkString(self, s):
+        return "ba" not in s
